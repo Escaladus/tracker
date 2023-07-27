@@ -1,9 +1,13 @@
-import { useLayoutEffect } from "react";
-import { View, Text, StyleSheet } from "react-native";
-import IconButton from "../components/UI/Iconbutton";
-import { GlobalStyles } from "../constants/styles";
+import { useContext, useLayoutEffect } from "react";
+import { StyleSheet, View } from "react-native";
+import { ExpensesContext } from "../store/expenses-context";
 import Button from "../components/UI/Button";
+import IconButton from "../components/UI/IconButton";
+import { GlobalStyles } from "../constants/styles";
+
 function ManageExpense({ route, navigation }) {
+  const expensesCtx = useContext(ExpensesContext);
+
   const editedExpenseId = route.params?.expenseId;
   const isEditing = !!editedExpenseId;
 
@@ -13,16 +17,36 @@ function ManageExpense({ route, navigation }) {
     });
   }, [navigation, isEditing]);
 
-  function deleteExpenseHandler() {}
+  function deleteExpenseHandler() {
+    expensesCtx.deleteExpense(editedExpenseId);
+    navigation.goBack();
+  }
 
-  function calncelHandler() {}
+  function cancelHandler() {
+    navigation.goBack();
+  }
 
-  function confirmHandler() {}
+  function confirmHandler() {
+    if (isEditing) {
+      expensesCtx.updateExpense(editedExpenseId, {
+        description: "Green Pencil!!!",
+        amount: 2.59,
+        date: new Date("2023-07-24"),
+      });
+    } else {
+      expensesCtx.addExpense({
+        description: "Blue Pencil 2",
+        amount: 13.0,
+        date: new Date("2023-07-23"),
+      });
+    }
+    navigation.goBack();
+  }
 
   return (
     <View style={styles.container}>
       <View style={styles.buttons}>
-        <Button style={styles.button} mode="flat" onPress={calncelHandler}>
+        <Button style={styles.button} mode="flat" onPress={cancelHandler}>
           Cancel
         </Button>
         <Button style={styles.button} onPress={confirmHandler}>
@@ -32,7 +56,7 @@ function ManageExpense({ route, navigation }) {
       {isEditing && (
         <View style={styles.deleteContainer}>
           <IconButton
-            icon={"trash"}
+            icon="trash"
             color={GlobalStyles.colors.error500}
             size={36}
             onPress={deleteExpenseHandler}
