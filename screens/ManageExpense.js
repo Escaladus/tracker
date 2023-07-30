@@ -7,10 +7,12 @@ import { GlobalStyles } from "../constants/styles";
 import ExpenseForm from "../components/manageExpense/ExpenseForm";
 import { deleteExpense, storeExpense, updateExpense } from "../util/http";
 import LoadingOverlay from "../components/UI/LoadingOverlay";
+import ErrorOverlay from "../components/UI/ErrorOverlay";
 
 function ManageExpense({ route, navigation }) {
   const [isSubmiting, setIsSubmiting] = useState(false);
   const expensesCtx = useContext(ExpensesContext);
+  const [error, setError] = useState();
 
   const editedExpenseId = route.params?.expenseId;
   const isEditing = !!editedExpenseId;
@@ -27,10 +29,14 @@ function ManageExpense({ route, navigation }) {
 
   async function deleteExpenseHandler() {
     setIsSubmiting(true);
-    expensesCtx.deleteExpense(editedExpenseId);
-    await deleteExpense(editedExpenseId);
-    setIsSubmiting(false);
-    navigation.goBack();
+    try {
+      expensesCtx.deleteExpense(editedExpenseId);
+      await deleteExpense(editedExpenseId);
+      navigation.goBack();
+    } catch (error) {
+      setError("Could not delete - please try again later!");
+      setIsSubmiting(false);
+    }
   }
 
   function cancelHandler() {
@@ -39,20 +45,28 @@ function ManageExpense({ route, navigation }) {
 
   async function confirmHandler(expenseData) {
     setIsSubmiting(true);
-    if (isEditing) {
-      expensesCtx.updateExpense(editedExpenseId, expenseData);
-      await updateExpense(editedExpenseId, expenseData);
-    } else {
-      const id = await storeExpense(expenseData);
-      expensesCtx.addExpense({ ...expenseData, id: id });
+    try {
+      if (isEditing) {
+        expensesCtx.updateExpense(editedExpenseId, expenseData);
+        await updateExpense(editedExpenseId, expenseData);
+      } else {
+        const id = await storeExpense(expenseData);
+        expensesCtx.addExpense({ ...expenseData, id: id });
+      }
+      navigation.goBack();
+    } catch (error) {
+      setError("Could not save data - please try agen later!");
+      setIsSubmiting(false);
     }
-    navigation.goBack();
   }
 
   if (isSubmiting) {
     return <LoadingOverlay />;
   }
 
+  if (error && !isSubmiting) {
+    return <ErrorOverlay message={error} />;
+  }
   return (
     <View style={styles.container}>
       <ExpenseForm
