@@ -1,68 +1,4 @@
 import { createContext, useReducer } from "react";
-/*
-const DUMMY_EXPENSES = [
-  {
-    id: "e1",
-    description: "A pair of shoes",
-    amount: 59.99,
-    date: new Date("2021-12-19"),
-  },
-  {
-    id: "e2",
-    description: "A pair of trousers",
-    amount: 89.29,
-    date: new Date("2022-01-05"),
-  },
-  {
-    id: "e3",
-    description: "Some bananas",
-    amount: 5.99,
-    date: new Date("2021-12-05"),
-  },
-  {
-    id: "e4",
-    description: "A book",
-    amount: 14.99,
-    date: new Date("2022-02-19"),
-  },
-  {
-    id: "e5",
-    description: "Another book",
-    amount: 8.59,
-    date: new Date("2022-02-18"),
-  },
-  {
-    id: "e6",
-    description: "A pair of red trousers",
-    amount: 99.25,
-    date: new Date("2022-01-06"),
-  },
-  {
-    id: "e7",
-    description: "White T-Shirt",
-    amount: 7.99,
-    date: new Date("2022-11-01"),
-  },
-  {
-    id: "e8",
-    description: "A Cook book",
-    amount: 16.99,
-    date: new Date("2022-03-12"),
-  },
-  {
-    id: "e9",
-    description: "Blue Pencil",
-    amount: 3.0,
-    date: new Date("2023-07-22"),
-  },
-  {
-    id: "e10",
-    description: "Blue Pencil",
-    amount: 1.0,
-    date: new Date("2023-07-24"),
-  },
-];
-*/
 
 export const ExpensesContext = createContext({
   expenses: [],
@@ -75,10 +11,10 @@ export const ExpensesContext = createContext({
 function expensesReducer(state, action) {
   switch (action.type) {
     case "ADD":
-      const id = new Date().toString() + Math.random().toString();
-      return [{ ...action.payload, id: id }, ...state];
+      return [action.payload, ...state];
     case "SET":
-      return action.payload;
+      const inverted = action.payload.reverse();
+      return inverted;
     case "UPDATE":
       const updatableExpenseIndex = state.findIndex(
         (expense) => expense.id === action.payload.id
